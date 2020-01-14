@@ -474,17 +474,24 @@ class EnvManager(object):
         cwd = self._poetry.file.parent
         env = self.get(reload=True)
 
-        if not env.is_sane():
+        create_venv = self._poetry.config.get("virtualenvs.create")
+        root_venv = self._poetry.config.get("virtualenvs.in-project")
+        venv_path = self._poetry.config.get("virtualenvs.path")
+
+        if not env.is_sane() and create_venv:
             force = True
 
         if env.is_venv() and not force:
             # Already inside a virtualenv.
+            if not env.is_sane() and not create_venv:
+                io.write_line(
+                    "<warning>The virtual environment found in {} seems to be broken. "
+                    "Skipping virtualenv creation, as specified in config file.</warning>".format(
+                        env.path
+                    )
+                )
             return env
 
-        create_venv = self._poetry.config.get("virtualenvs.create")
-        root_venv = self._poetry.config.get("virtualenvs.in-project")
-
-        venv_path = self._poetry.config.get("virtualenvs.path")
         if root_venv:
             venv_path = cwd / ".venv"
         elif venv_path is None:
@@ -623,6 +630,13 @@ class EnvManager(object):
                 self.build_venv(str(venv), executable=executable)
             elif io.is_very_verbose():
                 io.write_line("Virtualenv <c1>{}</> already exists.".format(name))
+            elif not env.is_sane() and not create_venv:
+                io.write_line(
+                    "<warning>The virtual environment found in {} seems to be broken. "
+                    "Skipping virtualenv creation, as specified in config file.</warning>".format(
+                        env.path
+                    )
+                )
 
         # venv detection:
         # stdlib venv may symlink sys.executable, so we can't use realpath.
