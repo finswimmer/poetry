@@ -1,5 +1,30 @@
 # Change Log
 
+## [1.1.13] - 2022-02-09
+
+## Fixed
+
+- Fixed an issue where envs in MSYS2 always reported as broken ([#4942](9https://github.com/python-poetry/poetry/pull/4942))
+- Fixed an issue where conda envs in windows are always reported as broken([#5008](https://github.com/python-poetry/poetry/pull/5008))
+- Fixed an issue where Poetry doesn't find its own venv on `poetry self update` ([#5048](https://github.com/python-poetry/poetry/pull/5048))
+
+## [1.1.12] - 2021-11-27
+
+### Fixed
+
+- Fixed broken caches on Windows due to `Path` starting with a slash ([#4549](https://github.com/python-poetry/poetry/pull/4549))
+- Fixed `JSONDecodeError` when installing packages by updating `cachecontrol` version ([#4831](https://github.com/python-poetry/poetry/pull/4831))
+- Fixed dropped markers in dependency walk ([#4686](https://github.com/python-poetry/poetry/pull/4686))
+
+
+## [1.1.11] - 2021-10-04
+
+### Fixed
+
+- Fixed errors when installing packages on Python 3.10. ([#4592](https://github.com/python-poetry/poetry/pull/4592))
+- Fixed an issue where the wrong `git` executable could be used on Windows. ([python-poetry/poetry-core#213](https://github.com/python-poetry/poetry-core/pull/213))
+- Fixed an issue where the Python 3.10 classifier was not automatically added. ([python-poetry/poetry-core#215](https://github.com/python-poetry/poetry-core/pull/215))
+
 ## [1.1.10] - 2021-09-21
 
 ### Fixed
