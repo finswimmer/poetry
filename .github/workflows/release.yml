@@ -25,7 +25,7 @@ jobs:
         fi
     - name: Building release
       run: |
-        make linux_release
+        make TAG=${{ steps.tag.outputs.tag }} linux_release
 #    - name: Upload release file
 #      uses: actions/upload-artifact@v1
 #      with:

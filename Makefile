@@ -53,6 +53,8 @@ linux_release:
 		-e PYTHON27=/opt/python/cp27-cp27m/bin/python \
 		-e PYTHON=/opt/python/cp35-cp35m/bin/python \
 		quay.io/pypa/manylinux2010_x86_64:2021-02-06-3d322a5 sh -c "cd /io && ./make-nix-release.sh"
+	FILES = $(shell ls)
+	echo $(FILES)
 	docker run --rm -i -v `pwd`:/io \
 		-e PYTHON=/opt/python/cp38-cp38/bin/python \
 		-e PYTHON36=/opt/python/cp36-cp36m/bin/python \
@@ -61,6 +63,8 @@ linux_release:
 		-e PYTHON39=/opt/python/cp39-cp39/bin/python \
 		-e PYTHON310=/opt/python/cp310-cp310/bin/python \
 		quay.io/pypa/manylinux2010_x86_64:2022-02-05-4cb577c sh -c "cd /io && ./make-nix-release.sh"
+	FILES = $(shell ls)
+	echo $(FILES)
 # run tests against all supported python versions
 tox:
 	@tox
