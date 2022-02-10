@@ -56,6 +56,7 @@ linux_release:
 		-e PYTHON37=/opt/python/cp37-cp37m/bin/python \
 		-e PYTHON38=/opt/python/cp38-cp38/bin/python \
 		-e PYTHON39=/opt/python/cp39-cp39/bin/python \
+		-e PYTHON310=/opt/python/cp310-cp310/bin/python \
 		quay.io/pypa/manylinux2010_x86_64:2021-02-06-3d322a5 sh -c "cd /io && ./make-nix-release.sh"
 
 # run tests against all supported python versions
