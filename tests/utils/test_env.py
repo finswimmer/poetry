@@ -1888,3 +1888,12 @@ def test_python_get_preferred_activated_fallback(
     assert python.python_version == Version.parse(
         ".".join(str(v) for v in sys.version_info[:3])
     )
+
+
+def test_python_get_system_python() -> None:
+    python = Python.get_system_python()
+
+    assert python.executable == Path(sys.executable)
+    assert python.python_version == Version.parse(
+        ".".join(str(v) for v in sys.version_info[:3])
+    )

@@ -50,3 +50,7 @@ class Python:
                 )
 
         return Python(_executable)
+
+    @staticmethod
+    def get_system_python() -> Python:
+        return Python(sys.executable)
