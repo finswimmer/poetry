@@ -1,14 +1,21 @@
 from __future__ import annotations
 
+import contextlib
 import subprocess
+import sys
 
 from functools import cached_property
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from poetry.core.constraints.version import Version
 
 from poetry.utils._compat import decode
 from poetry.utils.env.script_strings import GET_PYTHON_VERSION_ONELINER
+
+
+if TYPE_CHECKING:
+    from poetry.config.config import Config
 
 
 class Python:
@@ -28,3 +35,18 @@ class Python:
         )
 
         return Version.parse(_python_version)
+
+    @staticmethod
+    def get_preferred_python(config: Config) -> Python:
+        _executable = sys.executable
+
+        if config.get("virtualenvs.prefer-active-python"):
+            with contextlib.suppress(subprocess.CalledProcessError):
+                _executable = decode(
+                    subprocess.check_output(
+                        ["python3", "-c", '"import sys; print(sys.executable)"'],
+                        text=True,
+                    ).strip()
+                )
+
+        return Python(_executable)

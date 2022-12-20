@@ -194,7 +194,7 @@ ignore_missing_imports = true
 
 
 [tool.pytest.ini_options]
-addopts = "-n auto"
+#addopts = "-n auto"
 testpaths = ["tests"]
 markers = [
     "network: mark tests that require internet access",

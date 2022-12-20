@@ -1851,3 +1851,40 @@ def test_python_get_properties(mocker: MockerFixture) -> None:
 def test_python_no_absolute_path() -> None:
     with pytest.raises(ValueError):
         Python(executable="python3")
+
+
+def test_python_get_preferred_default(config: Config) -> None:
+    python = Python.get_preferred_python(config)
+
+    assert python.executable == Path(sys.executable)
+    assert python.python_version == Version.parse(
+        ".".join(str(v) for v in sys.version_info[:3])
+    )
+
+
+def test_python_get_preferred_activated(config: Config, mocker: MockerFixture) -> None:
+    mocker.patch(
+        "subprocess.check_output",
+        side_effect=check_output_wrapper(Version.parse("3.7.1")),
+    )
+    config.config["virtualenvs"]["prefer-active-python"] = True
+    python = Python.get_preferred_python(config)
+
+    assert python.executable == Path("/usr/bin/python3")
+    assert python.python_version == Version.parse("3.7.1")
+
+
+def test_python_get_preferred_activated_fallback(
+    config: Config, mocker: MockerFixture
+) -> None:
+    mocker.patch(
+        "subprocess.check_output",
+        side_effect=subprocess.CalledProcessError(1, "some command"),
+    )
+    config.config["virtualenvs"]["prefer-active-python"] = True
+    python = Python.get_preferred_python(config)
+
+    assert python.executable == Path(sys.executable)
+    assert python.python_version == Version.parse(
+        ".".join(str(v) for v in sys.version_info[:3])
+    )
