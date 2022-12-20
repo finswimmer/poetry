@@ -34,6 +34,7 @@ from poetry.utils.env import PythonVersionNotFound
 from poetry.utils.env import SystemEnv
 from poetry.utils.env import VirtualEnv
 from poetry.utils.env import build_environment
+from poetry.utils.env.python_manager import Python
 from poetry.utils.helpers import remove_directory
 
 
@@ -1834,3 +1835,19 @@ def test_command_from_bin_preserves_relative_path(manager: EnvManager) -> None:
     env = manager.get()
     command = env.get_command_from_bin("./foo.py")
     assert command == ["./foo.py"]
+
+
+def test_python_get_properties(mocker: MockerFixture) -> None:
+    mocker.patch(
+        "subprocess.check_output",
+        side_effect=check_output_wrapper(Version.parse("3.7.1")),
+    )
+    python = Python(executable="/usr/bin/python3")
+
+    assert python.executable == Path("/usr/bin/python3")
+    assert python.python_version == Version.parse("3.7.1")
+
+
+def test_python_no_absolute_path() -> None:
+    with pytest.raises(ValueError):
+        Python(executable="python3")
