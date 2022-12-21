@@ -1925,3 +1925,12 @@ def test_python_find_compatible(
 
     assert python.executable == Path("/usr/bin/python3.11")
     assert python.python_version == Version.parse("3.11.0")
+
+
+def test_python_get_by_version() -> None:
+    version = Version.parse(".".join(str(v) for v in sys.version_info[:3]))
+
+    python = Python.get_by_version(version)
+
+    # assert python.executable == Path(sys.executable)
+    assert python.python_version == version

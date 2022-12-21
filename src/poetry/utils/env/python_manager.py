@@ -76,3 +76,13 @@ class Python:
             raise NoCompatiblePythonVersionFound(poetry.package.python_versions)
 
         return Python(_executable)
+
+    @staticmethod
+    def get_by_version(version: Version) -> Python:
+        finder = pythonfinder.Finder()
+        python = finder.find_python_version(version.to_string())
+
+        if not python:
+            raise NoCompatiblePythonVersionFound(version.to_string())
+
+        return Python(python.path)
