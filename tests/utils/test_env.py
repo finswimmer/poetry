@@ -10,6 +10,7 @@ from pathlib import Path
 from threading import Thread
 from typing import TYPE_CHECKING
 from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 import tomlkit
@@ -1897,3 +1898,30 @@ def test_python_get_system_python() -> None:
     assert python.python_version == Version.parse(
         ".".join(str(v) for v in sys.version_info[:3])
     )
+
+
+def test_python_find_compatible(
+    project_factory: ProjectFactory, mocker: MockerFixture
+) -> None:
+    mocker.patch(
+        "pythonfinder.Finder.find_all_python_versions",
+        return_value=[
+            MagicMock(py_version=MagicMock(version="4.0.0"), path="/usr/bin/python4"),
+            MagicMock(
+                py_version=MagicMock(version="3.11.0"), path="/usr/bin/python3.11"
+            ),
+            MagicMock(py_version=MagicMock(version="3.3.3"), path="/usr/bin/python3.3"),
+        ],
+    )
+
+    mocker.patch(
+        "subprocess.check_output",
+        side_effect=check_output_wrapper(Version.parse("3.11.0")),
+    )
+
+    fixture = Path(__file__).parent.parent / "fixtures" / "simple_project"
+    poetry = project_factory("simple-project", source=fixture)
+    python = Python.get_compatible_python(poetry)
+
+    assert python.executable == Path("/usr/bin/python3.11")
+    assert python.python_version == Version.parse("3.11.0")

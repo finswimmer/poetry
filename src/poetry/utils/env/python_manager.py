@@ -8,14 +8,18 @@ from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import pythonfinder
+
 from poetry.core.constraints.version import Version
 
 from poetry.utils._compat import decode
+from poetry.utils.env.exceptions import NoCompatiblePythonVersionFound
 from poetry.utils.env.script_strings import GET_PYTHON_VERSION_ONELINER
 
 
 if TYPE_CHECKING:
     from poetry.config.config import Config
+    from poetry.poetry import Poetry
 
 
 class Python:
@@ -54,3 +58,21 @@ class Python:
     @staticmethod
     def get_system_python() -> Python:
         return Python(sys.executable)
+
+    @staticmethod
+    def get_compatible_python(poetry: Poetry) -> Python:
+        supported_python = poetry.package.python_constraint
+        _executable = None
+        finder = pythonfinder.Finder()
+
+        for python_to_try in finder.find_all_python_versions(3):
+            if supported_python.allows(
+                Version.parse(str(python_to_try.py_version.version))
+            ):
+                _executable = python_to_try.path
+                break
+
+        if not _executable:
+            raise NoCompatiblePythonVersionFound(poetry.package.python_versions)
+
+        return Python(_executable)
