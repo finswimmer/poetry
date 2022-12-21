@@ -35,14 +35,14 @@ class Python:
     @cached_property
     def python_version(self) -> Version:
         if not self._python_version:
-            _python_version = decode(
+            python_version = decode(
                 subprocess.check_output(
                     [str(self.executable), "-c", GET_PYTHON_VERSION_ONELINER],
                     text=True,
                 ).strip()
             )
 
-            self._python_version = Version.parse(_python_version)
+            self._python_version = Version.parse(python_version)
 
         return self._python_version
 
@@ -52,46 +52,44 @@ class Python:
 
     @staticmethod
     def get_preferred_python(config: Config) -> Python:
-        _executable = sys.executable
-        _python_version: Version | None = Python._get_sys_version()
+        executable = sys.executable
+        python_version: Version | None = Python._get_sys_version()
 
         if config.get("virtualenvs.prefer-active-python"):
             with contextlib.suppress(subprocess.CalledProcessError):
-                _executable = decode(
+                executable = decode(
                     subprocess.check_output(
                         ["python3", "-c", '"import sys; print(sys.executable)"'],
                         text=True,
                     ).strip()
                 )
-                _python_version = None
+                python_version = None
 
-        return Python(executable=_executable, python_version=_python_version)
+        return Python(executable=executable, python_version=python_version)
 
     @staticmethod
     def get_system_python() -> Python:
-        _python_version = Python._get_sys_version()
+        python_version = Python._get_sys_version()
 
-        return Python(executable=sys.executable, python_version=_python_version)
+        return Python(executable=sys.executable, python_version=python_version)
 
     @staticmethod
     def get_compatible_python(poetry: Poetry) -> Python:
         supported_python = poetry.package.python_constraint
-        _executable = None
-        _python_version = None
+        executable = None
+        python_version = None
         finder = pythonfinder.Finder()
 
         for python_to_try in finder.find_all_python_versions(3):
-            _python_version = Version.parse(str(python_to_try.py_version.version))
-            if supported_python.allows(
-                Version.parse(str(python_to_try.py_version.version))
-            ):
-                _executable = python_to_try.path
+            python_version = Version.parse(str(python_to_try.py_version.version))
+            if supported_python.allows(python_version):
+                executable = python_to_try.path
                 break
 
-        if not _executable:
+        if not executable:
             raise NoCompatiblePythonVersionFound(poetry.package.python_versions)
 
-        return Python(executable=_executable, python_version=_python_version)
+        return Python(executable=executable, python_version=python_version)
 
     @staticmethod
     def get_by_version(version: Version) -> Python:
@@ -101,7 +99,7 @@ class Python:
         if not python:
             raise NoCompatiblePythonVersionFound(version.to_string())
 
-        _executable = python.path
-        _python_version = Version.parse(str(python.py_version.version))
+        executable = python.path
+        python_version = Version.parse(str(python.py_version.version))
 
-        return Python(executable=_executable, python_version=_python_version)
+        return Python(executable=executable, python_version=python_version)
