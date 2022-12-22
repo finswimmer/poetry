@@ -30,6 +30,7 @@ from poetry.utils.env.exceptions import InvalidCurrentPythonVersionError
 from poetry.utils.env.exceptions import NoCompatiblePythonVersionFound
 from poetry.utils.env.exceptions import PythonVersionNotFound
 from poetry.utils.env.generic_env import GenericEnv
+from poetry.utils.env.python_manager import Python
 from poetry.utils.env.script_strings import GET_ENV_PATH_ONELINER
 from poetry.utils.env.script_strings import GET_PYTHON_VERSION_ONELINER
 from poetry.utils.env.system_env import SystemEnv
@@ -230,12 +231,8 @@ class EnvManager:
         if self._env is not None and not reload:
             return self._env
 
-        prefer_active_python = self._poetry.config.get(
-            "virtualenvs.prefer-active-python"
-        )
-        python_minor = self.get_python_version(
-            precision=2, prefer_active_python=prefer_active_python, io=self._io
-        ).to_string()
+        python = Python.get_preferred_python(self._poetry.config)
+        python_minor = f"{python.python_version.major}.{python.python_version.minor}"
 
         venv_path = self._poetry.config.virtualenvs_path
 
