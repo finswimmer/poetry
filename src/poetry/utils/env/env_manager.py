@@ -20,6 +20,7 @@ from cleo.io.null_io import NullIO
 from cleo.io.outputs.output import Verbosity
 from poetry.core.constraints.version import Version
 from poetry.core.constraints.version import parse_constraint
+from poetry.core.version.exceptions import InvalidVersion
 
 from poetry.toml.file import TOMLFile
 from poetry.utils._compat import WINDOWS
@@ -130,27 +131,16 @@ class EnvManager:
 
         try:
             python_version = Version.parse(python)
-            python = f"python{python_version.major}"
-            if python_version.precision > 1:
-                python += f".{python_version.minor}"
-        except ValueError:
-            # Executable in PATH or full executable path
-            pass
+            python_ = Python.get_by_version(python_version)
+        except InvalidVersion:
+            executable = self._full_python_path(python)
+            if not executable:
+                raise PythonVersionNotFound(python)
 
-        python_path = self._full_python_path(python)
-        if python_path is None:
-            raise PythonVersionNotFound(python)
+            python_ = Python(executable)
 
-        try:
-            python_version_string = subprocess.check_output(
-                [python_path, "-c", GET_PYTHON_VERSION_ONELINER], text=True
-            )
-        except CalledProcessError as e:
-            raise EnvCommandError(e)
-
-        python_version = Version.parse(python_version_string.strip())
-        minor = f"{python_version.major}.{python_version.minor}"
-        patch = python_version.text
+        minor = f"{python_.python_version.major}.{python_.python_version.minor}"
+        patch = python_.python_version.text
 
         create = False
         # If we are required to create the virtual environment in the project directory,
@@ -166,7 +156,7 @@ class EnvManager:
                 if patch != current_patch:
                     create = True
 
-            self.create_venv(executable=python_path, force=create)
+            self.create_venv(executable=python_.executable, force=create)
 
             return self.get(reload=True)
 
@@ -200,7 +190,7 @@ class EnvManager:
                 if patch != current_patch:
                     create = True
 
-            self.create_venv(executable=python_path, force=create)
+            self.create_venv(executable=python_.executable, force=create)
 
         # Activate
         envs[base_env_name] = {"minor": minor, "patch": patch}

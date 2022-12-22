@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 import tomlkit
@@ -61,6 +62,13 @@ def test_activate_activates_non_existing_virtualenv_no_envs_file(
     mocker.patch(
         "subprocess.check_output",
         side_effect=check_output_wrapper(),
+    )
+
+    mocker.patch(
+        "pythonfinder.Finder.find_python_version",
+        return_value=MagicMock(
+            py_version=MagicMock(version="3.7.1"), path="/usr/bin/python3.7"
+        ),
     )
 
     mock_build_env = mocker.patch(
