@@ -1849,9 +1849,29 @@ def test_python_get_properties(mocker: MockerFixture) -> None:
     assert python.python_version == Version.parse("3.7.1")
 
 
-def test_python_no_absolute_path() -> None:
-    with pytest.raises(ValueError):
-        Python(executable="python3")
+def test_python_get_properties_no_full_path_default(mocker: MockerFixture) -> None:
+    mocker.patch(
+        "subprocess.check_output",
+        side_effect=check_output_wrapper(Version.parse("3.7.1")),
+    )
+    python = Python(executable=Path(sys.executable).name)
+
+    assert python.executable == Path(sys.executable)
+    assert python.python_version == Version.parse("3.7.1")
+
+
+def test_python_get_properties_no_full_path_prefer_active(
+    mocker: MockerFixture, config: Config
+) -> None:
+    config.config["virtualenvs"]["prefer-active-python"] = True
+    mocker.patch(
+        "subprocess.check_output",
+        side_effect=check_output_wrapper(Version.parse("3.7.1")),
+    )
+    python = Python(executable="python3")
+
+    assert python.executable == Path("/usr/bin/python3")
+    assert python.python_version == Version.parse("3.7.1")
 
 
 def test_python_get_preferred_default(config: Config) -> None:

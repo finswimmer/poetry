@@ -12,25 +12,47 @@ import pythonfinder
 
 from poetry.core.constraints.version import Version
 
+from poetry.config.config import Config
 from poetry.utils._compat import decode
 from poetry.utils.env.exceptions import NoCompatiblePythonVersionFound
 from poetry.utils.env.script_strings import GET_PYTHON_VERSION_ONELINER
 
 
 if TYPE_CHECKING:
-    from poetry.config.config import Config
     from poetry.poetry import Poetry
 
 
 class Python:
     def __init__(
-        self, executable: str | Path, python_version: Version | None = None
+        self,
+        executable: str | Path,
+        python_version: Version | None = None,
+        config: Config | None = None,
     ) -> None:
-        if not Path(executable).is_absolute():
-            raise ValueError("Executable must be an absolute path.")
-
-        self.executable = Path(executable)
+        self._config = config or Config.create()
+        self._executable = Path(executable)
         self._python_version = python_version
+
+    @property
+    def executable(self) -> Path:
+        if not Path(self._executable).is_absolute():
+            if self._config.get("virtualenvs.prefer-active-python"):
+                self._executable = Path(
+                    decode(
+                        subprocess.check_output(
+                            [
+                                self._executable,
+                                "-c",
+                                '"import sys; print(sys.executable)"',
+                            ]
+                        ),
+                    ).strip()
+                )
+            else:
+                finder = pythonfinder.Finder()
+                self._executable = finder.which(str(self._executable)).path
+
+        return self._executable
 
     @cached_property
     def python_version(self) -> Version:
