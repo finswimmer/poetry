@@ -19,6 +19,7 @@ from poetry.utils.dependency_specification import parse_dependency_specification
 if TYPE_CHECKING:
     from packaging.utils import NormalizedName
     from poetry.core.packages.package import Package
+    from tomlkit import TOMLDocument
     from tomlkit.items import InlineTable
 
     from poetry.repositories import RepositoryPool
@@ -73,12 +74,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
     def handle(self) -> int:
         from pathlib import Path
 
-        from poetry.core.vcs.git import GitConfig
-
-        from poetry.config.config import Config
-        from poetry.layouts import layout
-        from poetry.pyproject.toml import PyProjectTOML
-        from poetry.utils.env import EnvManager
+        from poetry.core.pyproject.toml import PyProjectTOML
 
         project_path = Path.cwd()
 
@@ -107,8 +103,6 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
                 )
                 return 1
 
-        vcs_config = GitConfig()
-
         if self.io.is_interactive():
             self.line("")
             self.line(
@@ -116,6 +110,35 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
                 " <info>pyproject.toml</> config."
             )
             self.line("")
+
+        content = self._generate_pyproject_content()
+
+        for section, item in content.items():
+            pyproject.data.append(section, item)
+
+        if self.io.is_interactive():
+            self.line("<info>Generated file</info>")
+            self.line("")
+            self.line(pyproject.data.as_string().replace("\r\n", "\n"))
+            self.line("")
+
+        if not self.confirm("Do you confirm generation?", True):
+            self.line_error("<error>Command aborted</error>")
+
+            return 1
+
+        pyproject.save()
+
+        return 0
+
+    def _generate_pyproject_content(self) -> TOMLDocument:
+        from poetry.core.vcs.git import GitConfig
+
+        from poetry.config.config import Config
+        from poetry.layouts import layout
+        from poetry.utils.env import EnvManager
+
+        vcs_config = GitConfig()
 
         name = self.option("name")
         if not name:
@@ -147,6 +170,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
             f"Author [<comment>{author}</comment>, n to skip]: ", default=author
         )
         question.set_validator(lambda v: self._validate_author(v, author))
+
         author = self.ask(question)
 
         authors = [author] if author else []
@@ -237,23 +261,8 @@ You can specify a package in the following forms:
         )
 
         content = layout_.generate_poetry_content()
-        for section, item in content.items():
-            pyproject.data.append(section, item)
 
-        if self.io.is_interactive():
-            self.line("<info>Generated file</info>")
-            self.line("")
-            self.line(pyproject.data.as_string().replace("\r\n", "\n"))
-            self.line("")
-
-        if not self.confirm("Do you confirm generation?", True):
-            self.line_error("<error>Command aborted</error>")
-
-            return 1
-
-        pyproject.save()
-
-        return 0
+        return content
 
     def _generate_choice_list(
         self, matches: list[Package], canonicalized_name: NormalizedName
