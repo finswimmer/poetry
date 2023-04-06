@@ -5,10 +5,10 @@ from contextlib import suppress
 from cleo.helpers import argument
 from cleo.helpers import option
 
-from poetry.console.commands.command import Command
+from poetry.console.commands.init import InitCommand
 
 
-class NewCommand(Command):
+class NewCommand(InitCommand):
     name = "new"
     description = "Creates a new Python project at <path>."
 
@@ -24,14 +24,13 @@ class NewCommand(Command):
         ),
     ]
 
+
     def handle(self) -> int:
         from pathlib import Path
 
-        from poetry.core.vcs.git import GitConfig
-
-        from poetry.config.config import Config
         from poetry.layouts import layout
-        from poetry.utils.env import EnvManager
+
+        self.io.interactive(False)
 
         if self.io.input.option("directory"):
             self.line_error(
@@ -47,45 +46,47 @@ class NewCommand(Command):
             # for path.resolve(strict=False)
             path = Path.cwd().joinpath(path)
 
-        name = self.option("name")
-        if not name:
-            name = path.name
-
         if path.exists() and list(path.glob("*")):
             # Directory is not empty. Aborting.
             raise RuntimeError(
                 f"Destination <fg=yellow>{path}</> exists and is not empty"
             )
 
-        readme_format = self.option("readme") or "md"
+        name = self.option("name")
+        if not name:
+            name = path.name
 
-        config = GitConfig()
-        author = None
-        if config.get("user.name"):
-            author = config["user.name"]
-            author_email = config.get("user.email")
-            if author_email:
-                author += f" <{author_email}>"
-
-        poetry_config = Config.create()
-        default_python = (
-            "^"
-            + EnvManager.get_python_version(
-                precision=2,
-                prefer_active_python=poetry_config.get(
-                    "virtualenvs.prefer-active-python"
-                ),
-                io=self.io,
-            ).to_string()
-        )
-
-        layout_ = layout_cls(
-            name,
-            "0.1.0",
-            author=author,
-            readme_format=readme_format,
-            python=default_python,
-        )
+        layout_ = self._generate_layout(name=name)
+        #
+        # readme_format = self.option("readme") or "md"
+        #
+        # config = GitConfig()
+        # author = None
+        # if config.get("user.name"):
+        #     author = config["user.name"]
+        #     author_email = config.get("user.email")
+        #     if author_email:
+        #         author += f" <{author_email}>"
+        #
+        # poetry_config = Config.create()
+        # default_python = (
+        #     "^"
+        #     + EnvManager.get_python_version(
+        #         precision=2,
+        #         prefer_active_python=poetry_config.get(
+        #             "virtualenvs.prefer-active-python"
+        #         ),
+        #         io=self.io,
+        #     ).to_string()
+        # )
+        #
+        # layout_ = layout_cls(
+        #     name,
+        #     "0.1.0",
+        #     author=author,
+        #     readme_format=readme_format,
+        #     python=default_python,
+        # )
         layout_.create(path)
 
         path = path.resolve()

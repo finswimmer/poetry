@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from typing import Any
 from typing import Dict
 from typing import Mapping
@@ -19,9 +19,9 @@ from poetry.utils.dependency_specification import parse_dependency_specification
 if TYPE_CHECKING:
     from packaging.utils import NormalizedName
     from poetry.core.packages.package import Package
-    from tomlkit import TOMLDocument
     from tomlkit.items import InlineTable
 
+    from poetry.layouts import Layout
     from poetry.repositories import RepositoryPool
 
 Requirements = Dict[str, Union[str, Mapping[str, Any]]]
@@ -111,7 +111,8 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
             )
             self.line("")
 
-        content = self._generate_pyproject_content()
+        layout_ = self._generate_layout()
+        content = layout_.generate_poetry_content()
 
         for section, item in content.items():
             pyproject.data.append(section, item)
@@ -131,7 +132,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
 
         return 0
 
-    def _generate_pyproject_content(self) -> TOMLDocument:
+    def _generate_layout(self, name: Optional[str] = None ) -> Layout:
         from poetry.core.vcs.git import GitConfig
 
         from poetry.config.config import Config
@@ -140,7 +141,7 @@ The <c1>init</c1> command creates a basic <comment>pyproject.toml</> file in the
 
         vcs_config = GitConfig()
 
-        name = self.option("name")
+        name = name or self.option("name")
         if not name:
             name = Path.cwd().name.lower()
 
@@ -249,6 +250,8 @@ You can specify a package in the following forms:
             if self.io.is_interactive():
                 self.line("")
 
+        readme_format = self.option("readme") or "md"
+
         layout_ = layout("standard")(
             name,
             version,
@@ -260,9 +263,7 @@ You can specify a package in the following forms:
             dev_dependencies=dev_requirements,
         )
 
-        content = layout_.generate_poetry_content()
-
-        return content
+        return layout_
 
     def _generate_choice_list(
         self, matches: list[Package], canonicalized_name: NormalizedName
