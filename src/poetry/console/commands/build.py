@@ -93,12 +93,10 @@ class BuildHandler:
         """
         if not self._has_build_backend_defined():
             self.io.write_error_line(
-                "<warning><b>WARNING</>: No build backend defined. Please define one in the <c1>pyproject.toml</>.\n"
-                "Falling back to using the built-in `poetry-core` version.\n"
-                "This warning will become an error in a future release.\n"
-                "More details can be found at https://python-poetry.org/docs/libraries/#packaging</>"
+                "<warning>WARNING: No build backend defined.\n"
+                "Falling back to using `setuptools` as defined in PEP 517.</>"
             )
-            return False
+            return True
 
         if (
             self.poetry.package.build_script

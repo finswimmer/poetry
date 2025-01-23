@@ -73,6 +73,11 @@ a `wheel`, the following files are included in the `.dist-info` directory:
 When building an `sdist`, the following files will be included in the root folder:
   - `LICENSE*`
 
+{{% note %}}
+If there is no build-system specified in the `pyproject.toml` file, Poetry will fallback to using
+`setuptools` as the build backend. This behavior is specified in PEP 517.
+{{% /note %}}
+
 ### Alternative build backends
 
 If you want to use a different build backend, you can specify it in the `pyproject.toml` file:
