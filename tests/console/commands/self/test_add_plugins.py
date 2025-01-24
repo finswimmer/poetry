@@ -12,6 +12,7 @@ import pytest
 from poetry.core.packages.package import Package
 
 from poetry.console.commands.add import AddCommand
+from poetry.console.commands.add import AddCommandHandler
 from poetry.console.commands.self.self_command import SelfCommand
 from poetry.factory import Factory
 from tests.console.commands.self.utils import get_self_command_dependencies
@@ -223,7 +224,7 @@ The following packages are already present in the pyproject.toml and will be\
  skipped:
 
   - poetry-plugin
-{tester.command._hint_update_packages}
+{AddCommandHandler._hint_update_packages()}
 Nothing to add.
 """
 
