@@ -18,6 +18,7 @@ from poetry.console.commands.env_command import EnvCommand
 from poetry.console.commands.init import InitBase
 from poetry.console.commands.init import InitCommand
 from poetry.console.commands.installer_command import InstallerCommand
+from poetry.pyproject.toml import PyProjectTOML
 
 
 if TYPE_CHECKING:
@@ -63,6 +64,7 @@ class AddCommandHandler(InitBase):
             )
             else None
         )
+        self._pyproject = PyProjectTOML(self.poetry.file.path)
 
     @staticmethod
     def get_existing_packages_from_input(
@@ -167,9 +169,15 @@ class AddCommandHandler(InitBase):
             poetry_section = this_group["dependencies"]
             project_section = []
 
+        p = self._pyproject.get_dependency_names(
+            group=options.group, optional=options.optional
+        )
+        e = [name for name in options.packages if canonicalize_name(name) in p]
         existing_packages = self.get_existing_packages_from_input(
             options.packages, poetry_section, project_dependency_names
         )
+
+        assert existing_packages == e
 
         if existing_packages:
             self.notify_about_existing_packages(existing_packages)

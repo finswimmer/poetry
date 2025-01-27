@@ -1194,6 +1194,7 @@ def test_add_should_skip_when_adding_existing_package_with_no_constraint(
     pyproject: dict[str, Any] = app.poetry.file.read()
     if project_dependencies:
         pyproject["project"]["dependencies"] = ["foo>1"]
+        pyproject["project"]["dynamic"].remove("dependencies")
     else:
         pyproject["tool"]["poetry"]["dependencies"]["foo"] = "^1.0"
     pyproject = cast("TOMLDocument", pyproject)
@@ -1226,6 +1227,9 @@ def test_add_should_skip_when_adding_canonicalized_existing_package_with_no_cons
     pyproject: dict[str, Any] = app.poetry.file.read()
     if project_dependencies:
         pyproject["project"]["dependencies"] = ["foo-bar>1"]
+        pyproject["project"]["dynamic"].pop(
+            pyproject["project"]["dynamic"].index("dependencies")
+        )
     else:
         pyproject["tool"]["poetry"]["dependencies"]["foo-bar"] = "^1.0"
     pyproject = cast("TOMLDocument", pyproject)
