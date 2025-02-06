@@ -1,5 +1,46 @@
 # Change Log
 
+## [2.1.0] - 2025-02-xx
+
+### Added
+
+- **Make `build` command build-system agnostic** ([#10059](https://github.com/python-poetry/poetry/pull/10059)).
+- Use `findpython` to find the Python interpreters ([#10097](https://github.com/python-poetry/poetry/pull/10097)).
+- Improve presenting errors to users (
+  [#10053](https://github.com/python-poetry/poetry/pull/10053),
+  [#10065]( https://github.com/python-poetry/poetry/pull/10065),
+  [#10126](https://github.com/python-poetry/poetry/pull/10126),
+  [#10127](https://github.com/python-poetry/poetry/pull/10127),
+  [#10132](https://github.com/python-poetry/poetry/pull/10132)
+).
+
+### Changed
+
+- **`poetry new` defaults to "src" layout by default** ([#10135](https://github.com/python-poetry/poetry/pull/10135)).
+
+### Fixed
+
+- Fix an issue where global options were not handled correctly when positioned after command options ([#10021](https://github.com/python-poetry/poetry/pull/10021)).
+- Fix an issue where invalid dependencies could cause constraint errors when building in an isolated environment ([#10048](https://github.com/python-poetry/poetry/pull/10048)).
+- Fix an issue where the '@latest' descriptor was incorrectly passed to the core requirement parser ([#10069](https://github.com/python-poetry/poetry/pull/10069)).
+- Make normalization of Boolean env vars case-insensitive ([#10080](https://github.com/python-poetry/poetry/pull/10080)).
+- Fix an issue where `poetry env activate` would report misleading error message ([#10087](https://github.com/python-poetry/poetry/pull/10087)).
+- Fix an issue where adding an optional dependency with `poetry add --optional` would not correctly update the lock file ([#10076](https://github.com/python-poetry/poetry/pull/10076)).
+- Ensure pip operations are executed first during installation to avoid potential conflicts ([#10102](https://github.com/python-poetry/poetry/pull/10102)).
+- Fix unexpected behavior when migrating from Poetry 1.x with private indices requiring empty usernames ([#10088](https://github.com/python-poetry/poetry/pull/10088)).
+- Fix a hang that could occur when multiple threads attempt to unlock the keyring simultaneously ([#10062](https://github.com/python-poetry/poetry/pull/10062)).
+- Fix an issue where constraints associated with an extra were not being propagated correctly when solving dependencies ([#10119](https://github.com/python-poetry/poetry/pull/10119)).
+- Fix an issue where self-referential extras were not resolved correctly when nested extras were involved ([#10106](https://github.com/python-poetry/poetry/pull/10106)).
+- Fix permission errors when installing wheels to system paths without write access ([#9014](https://github.com/python-poetry/poetry/pull/9014)).
+- Fix an issue where test_solver_should_not_raise_errors_for_irrelevant_transitive_python_constraints would select an incompatible importlib-resources version. ([#10141](https://github.com/python-poetry/poetry/pull/10141)).
+
+### Docs
+
+- Document that the name and version fields are always required if the project section is specified ([#10033](https://github.com/python-poetry/poetry/pull/10033)).
+- Add a note about restarting the shell for tab completion changes to take effect ([#10070](https://github.com/python-poetry/poetry/pull/10070)).
+- Explain how to include files as scripts in the project configuration ([#10133](https://github.com/python-poetry/poetry/pull/10133)).
+- Add additional information on specifying required python versions ([#10104](https://github.com/python-poetry/poetry/pull/10104)).
+
 ## [2.0.1] - 2025-01-11
 
 ### Added
@@ -2377,7 +2418,8 @@ Initial release
 
 
 
-[Unreleased]: https://github.com/python-poetry/poetry/compare/2.0.1...main
+[Unreleased]: https://github.com/python-poetry/poetry/compare/2.1.0...main
+[2.1.0]: https://github.com/python-poetry/poetry/releases/tag/2.1.0
 [2.0.1]: https://github.com/python-poetry/poetry/releases/tag/2.0.1
 [2.0.0]: https://github.com/python-poetry/poetry/releases/tag/2.0.0
 [1.8.5]: https://github.com/python-poetry/poetry/releases/tag/1.8.5
