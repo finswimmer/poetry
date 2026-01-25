@@ -1497,18 +1497,18 @@ testing = ["process-tests", "pytest-xdist", "virtualenv"]
 
 [[package]]
 name = "pytest-github-actions-annotate-failures"
-version = "0.1.8"
+version = "0.3.0"
 description = "pytest plugin to annotate failed tests with a workflow command for GitHub Actions"
 optional = false
-python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
+python-versions = ">=3.8"
 groups = ["github-actions"]
 files = [
-    {file = "pytest-github-actions-annotate-failures-0.1.8.tar.gz", hash = "sha256:2d6e6cb5f8d0aae4a27a20cc4e20fabd3199a121c57f44bc48fe28e372e0be23"},
-    {file = "pytest_github_actions_annotate_failures-0.1.8-py2.py3-none-any.whl", hash = "sha256:6a882ff21672fa79deae8d917eb965a6bde2b25191e7632e1adfc23ffac008ab"},
+    {file = "pytest_github_actions_annotate_failures-0.3.0-py3-none-any.whl", hash = "sha256:41ea558ba10c332c0bfc053daeee0c85187507b2034e990f21e4f7e5fef044cf"},
+    {file = "pytest_github_actions_annotate_failures-0.3.0.tar.gz", hash = "sha256:d4c3177c98046c3900a7f8ddebb22ea54b9f6822201b5d3ab8fcdea51e010db7"},
 ]
 
 [package.dependencies]
-pytest = ">=4.0.0"
+pytest = ">=6.0.0"
 
 [[package]]
 name = "pytest-mock"
@@ -2196,4 +2196,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "d9854c540c328875398fc4c773e1a1edc333ddf03a1fd7699c9ab501f5b99884"
+content-hash = "402b5e44d6e2685428d7ed88c6ea69403d667f3b0937240364be664338a2491f"
